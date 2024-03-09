@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
         EditText etnMatrikelnummer = findViewById(R.id.eTNMatrikelnummer);
         Button btnSend = findViewById(R.id.btnSend);
 
+        TextView tvChangeId = findViewById(R.id.tvChange);
+        Button btnChangeId = findViewById(R.id.btnChange);
+
         // network running on separate thread
         new Thread(new Runnable() {
             @Override
@@ -66,6 +69,26 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 tvResponse.setText(respMsg);
+                            }
+                        });
+                    }
+                }).start();
+            }
+        });
+
+        // button "Ändern"
+        btnChangeId.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String sidString = etnMatrikelnummer.getText().toString();
+                int sid = Integer.parseInt(sidString);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tvChangeId.setText(changeStudentId(sid));
                             }
                         });
                     }
@@ -107,6 +130,30 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Error", "Exception: " + e + " thrown, when trying to send a message.");
         }
         return response;
+    }
+
+    // swaps every second digit of the studentId to a corresponding letter
+    public String changeStudentId(int sid) {
+        StringBuilder result = new StringBuilder();
+        int numDigits = 8;
+        int[] digits = new int[numDigits];
+
+        // filling array
+        for(int i = 0; i < numDigits; i++) {
+            digits[numDigits-1-i] = sid % 10; // getting last digit
+            sid /= 10; // "cutting off" last digit
+        }
+
+        // changing studentId
+        for(int i = 0; i < numDigits; i++) {
+            if(i % 2 == 1) {
+                result.append("").append((char) (digits[i] + 97));
+            } else {
+                result.append("").append(digits[i]);
+            }
+        }
+
+        return result.toString();
     }
 
     // closes the connection
